@@ -34,9 +34,9 @@ SQL2REST ist eine **read-only** REST-API über SQL-Server-Views. Du kannst Daten
 - `get_customer(customer_number, mandant)` — einzelnen Kunden holen
 
 **Aufträge**
-- `list_orders(customer, status, from_date, to_date, sort, mandant, limit, offset)` — Aufträge filtern (Kunde, Status, Zeitraum)
+- `list_orders(customer, status, storno, order_type, from_date, to_date, sort, mandant, limit, offset)` — Aufträge filtern (Kunde, Status, Storno-Flag (`storno`), Auftragstyp (`order_type`), Zeitraum)
 - `get_order(order_number, mandant)` — einzelnen Auftrag
-- `get_order_items(order_number, mandant, limit, offset)` — Auftragspositionen
+- `get_order_items(order_number, mandant, limit, offset)` — Auftragspositionen (jede Position trägt zusätzlich `Storno` und `OrderType` des Auftrags)
 
 **Rechnungen**
 - `list_invoices(customer, status, from_date, to_date, sort, mandant, limit, offset)` — Rechnungen filtern
@@ -54,7 +54,7 @@ SQL2REST ist eine **read-only** REST-API über SQL-Server-Views. Du kannst Daten
 - `list_delivery_notes(order_number, customer, include_items, from_date, to_date, mandant, limit)` — Lieferscheine (mit `include_items=True` inkl. Positionen)
 
 **Sync (vor-verknüpft für CRM/Exporte)**
-- `sync_orders(since, customer, mandant, limit, offset)` — Aufträge inkl. Kunden-/Rechnungs-/Versanddaten in einem Rutsch
+- `sync_orders(since, customer, storno, order_type, mandant, limit, offset)` — Aufträge inkl. Kunden-/Rechnungs-/Versanddaten in einem Rutsch
 - `sync_customers(since, search, mandant, limit, offset)` — Kunden-Batch-Sync
 
 **Einkauf — nur falls im Setup-Wizard freigeschaltet** (sonst liefern diese Tools ein `error`-Objekt; sag dem Nutzer dann, dass Einkauf im SQL2REST-Setup aktiviert werden muss)
@@ -73,6 +73,7 @@ SQL2REST ist eine **read-only** REST-API über SQL-Server-Views. Du kannst Daten
 
 - **„Top-Kunden im März"** → `list_orders(from_date="2026-03-01", to_date="2026-03-31", limit=500)`, nach Kunde gruppieren, Umsatz summieren, Top-N als Tabelle.
 - **„Bestellungen von Kunde 10001"** → `list_orders(customer="10001", sort="OrderDate", ...)`, bei Bedarf `get_order_items` je Auftrag.
+- **„Verkaufte Menge / Verbrauch je SKU"** (passend zu JTLs „verkauft pro Tag") → `list_orders(storno=0, order_type="B", from_date=..., to_date=...)`, dann je SKU die `get_order_items`-Mengen summieren. `storno=0` lässt Stornos weg, `order_type="B"` behält nur echte Aufträge — exakt JTLs Filter (`tBestellung.nStorno = 0 AND cType = 'B'`). Ohne diese Filter blähen Stornos den Wert auf.
 - **„Welche Artikel sind in Farbe Rot, Größe M?"** → erst `list_attributes()` zum Prüfen der exakten Merkmalsnamen, dann `filter_products_by_attribute({"farbe": "rot", "groesse": "m"})`.
 - **„Lagerbestand für SKU ABC-123"** → `get_stock(sku="ABC-123")`.
 - **„Offene Bestellungen bei Lieferant X"** (nur bei aktiviertem Einkauf) → `list_suppliers(search="X")` für die ID, dann `list_purchase_orders(supplier_id=..., open_only=True)`.

@@ -34,9 +34,9 @@ SQL2REST is a **read-only** REST API over SQL Server views. You can **query and 
 - `get_customer(customer_number, mandant)` — single customer
 
 **Orders**
-- `list_orders(customer, status, from_date, to_date, sort, mandant, limit, offset)` — filter by customer, status, date range
+- `list_orders(customer, status, storno, order_type, from_date, to_date, sort, mandant, limit, offset)` — filter by customer, status, cancellation flag (`storno`), order type (`order_type`), date range
 - `get_order(order_number, mandant)` — single order
-- `get_order_items(order_number, mandant, limit, offset)` — order line items
+- `get_order_items(order_number, mandant, limit, offset)` — order line items (each item also carries `Storno` and `OrderType` of its parent order)
 
 **Invoices**
 - `list_invoices(customer, status, from_date, to_date, sort, mandant, limit, offset)` — filter invoices
@@ -54,7 +54,7 @@ SQL2REST is a **read-only** REST API over SQL Server views. You can **query and 
 - `list_delivery_notes(order_number, customer, include_items, from_date, to_date, mandant, limit)` — delivery notes (`include_items=True` embeds line items)
 
 **Sync (pre-joined for CRM/exports)**
-- `sync_orders(since, customer, mandant, limit, offset)` — orders incl. customer/invoice/shipment data
+- `sync_orders(since, customer, storno, order_type, mandant, limit, offset)` — orders incl. customer/invoice/shipment data
 - `sync_customers(since, search, mandant, limit, offset)` — batch customer sync
 
 **Procurement — only if enabled in the setup wizard** (otherwise these tools return an `error` object; tell the user to enable procurement in SQL2REST setup)
@@ -73,6 +73,7 @@ SQL2REST is a **read-only** REST API over SQL Server views. You can **query and 
 
 - **"Top customers in March"** → `list_orders(from_date="2026-03-01", to_date="2026-03-31", limit=500)`, group by customer, sum revenue, present top-N as a table.
 - **"Orders for customer 10001"** → `list_orders(customer="10001", sort="OrderDate", ...)`, then `get_order_items` per order if needed.
+- **"Units sold / consumption per SKU"** (to match JTL's own "verkauft pro Tag" figure) → `list_orders(storno=0, order_type="B", from_date=..., to_date=...)`, then sum `get_order_items` quantities per SKU. `storno=0` drops cancelled orders and `order_type="B"` keeps only real sales orders — exactly JTL's filter (`tBestellung.nStorno = 0 AND cType = 'B'`). Without these filters, cancellations inflate the count.
 - **"Which products are red, size M?"** → first `list_attributes()` to confirm exact attribute names, then `filter_products_by_attribute({"farbe": "rot", "groesse": "m"})`.
 - **"Stock for SKU ABC-123"** → `get_stock(sku="ABC-123")`.
 - **"Open purchase orders for supplier X"** (procurement enabled only) → `list_suppliers(search="X")` for the ID, then `list_purchase_orders(supplier_id=..., open_only=True)`.
