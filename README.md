@@ -22,3 +22,5 @@ A running **SQL2REST** install (v1.6+ for the MCP examples) on your JTL-Wawi ser
 ## Contributing
 
 Found a useful integration? Open a pull request or an issue. Keep examples free of secrets and real data.
+
+<!-- Templates synced to SQL2REST v1.2.10 — see https://sql2rest.com/changelog/ -->
