@@ -1,0 +1,158 @@
+{
+  "name": "SQL2REST — Low Stock Alert",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 4
+            }
+          ]
+        }
+      },
+      "id": "node-schedule",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://YOUR-SERVER:8000/stock/by-warehouse",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "SQL2REST API Key"
+        }
+      },
+      "id": "node-get-stock",
+      "name": "Get Stock by Warehouse",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-low-stock",
+              "leftValue": "={{ $json.available }}",
+              "rightValue": 5,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "node-if-low-stock",
+      "name": "Is Stock Below Threshold?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [500, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "field-sku",
+              "name": "sku",
+              "value": "={{ $json.sku }}",
+              "type": "string"
+            },
+            {
+              "id": "field-available",
+              "name": "available",
+              "value": "={{ $json.available }}",
+              "type": "number"
+            },
+            {
+              "id": "field-warehouse",
+              "name": "warehouse",
+              "value": "={{ $json.warehouse_name }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-alert",
+      "name": "-> Alert (connect your own)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [750, 200]
+    },
+    {
+      "parameters": {
+        "content": "## SQL2REST — Low Stock Alert\n\n**Before running this workflow:**\n\n1. **Create a credential** in n8n:\n   - Go to Credentials -> New -> Header Auth\n   - Name it exactly: `SQL2REST API Key`\n   - Field \"Name\": `X-API-Key`\n   - Field \"Value\": your key from the SQL2REST API-Dashboard\n\n2. **Replace the base URL**: update `YOUR-SERVER:8000` in the \"Get Stock by Warehouse\" node with your server address.\n\n3. **Reconnect the credential**: click the \"Get Stock by Warehouse\" node, open the credential dropdown and select \"SQL2REST API Key\".\n\n4. **Adjust the threshold**: in the \"Is Stock Below Threshold?\" node, change `5` to your desired minimum stock level.\n\n5. **Connect an alert**: replace the last node with Slack, Email, Teams, or any notification target.\n\n**How it works:** Runs every 4 hours, pulls all stock by warehouse, filters for `available < 5`, and forwards low-stock items to your alert channel. Platform-neutral — no Shopify dependency.\n\n**Self-hosted n8n on the same LAN:** `http://localhost:8000` or the LAN IP works fine.\n**n8n Cloud:** SQL2REST must be publicly reachable. See: https://sql2rest.com/docs/reverse-proxy/",
+        "height": 470,
+        "width": 460,
+        "color": 7
+      },
+      "id": "node-note",
+      "name": "Setup Instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-50, -220]
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Stock by Warehouse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Stock by Warehouse": {
+      "main": [
+        [
+          {
+            "node": "Is Stock Below Threshold?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Stock Below Threshold?": {
+      "main": [
+        [
+          {
+            "node": "-> Alert (connect your own)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "instanceId": ""
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "name": "SQL2REST Starter",
+  "flow": [
+    {
+      "id": 1,
+      "module": "http:ActionGetFile",
+      "version": 3,
+      "parameters": {
+        "handleErrors": false,
+        "useNewZLibDecompression": true
+      },
+      "mapper": {
+        "url": "http://YOUR-SERVER:8000/orders",
+        "method": "get",
+        "headers": [
+          {
+            "name": "X-API-Key",
+            "value": "YOUR-API-KEY"
+          }
+        ],
+        "qs": [],
+        "bodyType": "raw",
+        "parseResponse": true,
+        "shareCookies": false
+      },
+      "metadata": {
+        "designer": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "instant": false,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true
+    }
+  }
+}

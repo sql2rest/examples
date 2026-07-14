@@ -1,0 +1,115 @@
+{
+  "name": "SQL2REST — Daily Product Export",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 6 * * *"
+            }
+          ]
+        }
+      },
+      "id": "node-schedule",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://YOUR-SERVER:8000/products",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "limit",
+              "value": "500"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "SQL2REST API Key"
+        }
+      },
+      "id": "node-get-products",
+      "name": "Get Products",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "field-passthrough",
+              "name": "product",
+              "value": "={{ $json }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-destination",
+      "name": "-> Google Sheets / CSV (connect your own)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [500, 300]
+    },
+    {
+      "parameters": {
+        "content": "## SQL2REST — Daily Product Export\n\n**Before running this workflow:**\n\n1. **Create a credential** in n8n:\n   - Go to Credentials -> New -> Header Auth\n   - Name it exactly: `SQL2REST API Key`\n   - Field \"Name\": `X-API-Key`\n   - Field \"Value\": your key from the SQL2REST API-Dashboard\n\n2. **Replace the base URL**: update `YOUR-SERVER:8000` in the \"Get Products\" node with your server address.\n\n3. **Reconnect the credential**: click the \"Get Products\" node, open the credential dropdown and select \"SQL2REST API Key\".\n\n4. **Connect a destination**: replace the last node with Google Sheets, a CSV Write node, or any storage target.\n\n**How it works:** Runs daily at 06:00, pulls up to 500 products. Increase `limit` or paginate for larger catalogs.\n\n**Self-hosted n8n on the same LAN:** `http://localhost:8000` or the LAN IP works fine.\n**n8n Cloud:** SQL2REST must be publicly reachable. See: https://sql2rest.com/docs/reverse-proxy/",
+        "height": 420,
+        "width": 450,
+        "color": 7
+      },
+      "id": "node-note",
+      "name": "Setup Instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-50, -200]
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Products",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Products": {
+      "main": [
+        [
+          {
+            "node": "-> Google Sheets / CSV (connect your own)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "instanceId": ""
+  }
+}

@@ -1,0 +1,143 @@
+{
+  "name": "SQL2REST — New Orders Notification",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "id": "node-schedule",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "http://YOUR-SERVER:8000/orders",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "limit",
+              "value": "100"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "SQL2REST API Key"
+        }
+      },
+      "id": "node-get-orders",
+      "name": "Get Orders",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "fieldsToCompare": {
+          "fields": [
+            {
+              "fieldName": "id"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-dedup",
+      "name": "Remove Duplicates",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 1,
+      "position": [500, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "field-passthrough",
+              "name": "order",
+              "value": "={{ $json }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "node-destination",
+      "name": "-> Slack / Email / Webhook (connect your own)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [750, 300]
+    },
+    {
+      "parameters": {
+        "content": "## SQL2REST — New Orders Notification\n\n**Before running this workflow:**\n\n1. **Create a credential** in n8n:\n   - Go to Credentials -> New -> Header Auth\n   - Name it exactly: `SQL2REST API Key`\n   - Field \"Name\": `X-API-Key`\n   - Field \"Value\": your key from the SQL2REST API-Dashboard\n\n2. **Replace the base URL**: update `YOUR-SERVER:8000` in the \"Get Orders\" node with your server address.\n\n3. **Reconnect the credential**: click the \"Get Orders\" node, open the credential dropdown and select \"SQL2REST API Key\".\n\n4. **Connect a destination**: replace the last node with your notification target (Slack, Email, Webhook, etc.).\n\n**How it works:** Pulls all orders every 15 minutes, deduplicates on `id` so only new orders pass through.\n\n**Self-hosted n8n on the same LAN:** `http://localhost:8000` or the LAN IP works fine.\n**n8n Cloud:** SQL2REST must be publicly reachable. See: https://sql2rest.com/docs/reverse-proxy/",
+        "height": 430,
+        "width": 450,
+        "color": 7
+      },
+      "id": "node-note",
+      "name": "Setup Instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-50, -200]
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Orders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Orders": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates": {
+      "main": [
+        [
+          {
+            "node": "-> Slack / Email / Webhook (connect your own)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "instanceId": ""
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "name": "SQL2REST -- Orders Notification",
+  "flow": [
+    {
+      "id": 1,
+      "module": "http:ActionGetFile",
+      "version": 3,
+      "parameters": {
+        "handleErrors": false,
+        "useNewZLibDecompression": true
+      },
+      "mapper": {
+        "url": "http://YOUR-SERVER:8000/orders",
+        "method": "get",
+        "headers": [
+          {
+            "name": "X-API-Key",
+            "value": "YOUR-API-KEY"
+          }
+        ],
+        "qs": [
+          {
+            "name": "limit",
+            "value": "50"
+          }
+        ],
+        "bodyType": "raw",
+        "parseResponse": true,
+        "shareCookies": false
+      },
+      "metadata": {
+        "designer": {
+          "x": 0,
+          "y": 0
+        }
+      }
+    },
+    {
+      "id": 2,
+      "module": "util:SetVariables",
+      "version": 1,
+      "parameters": {},
+      "mapper": {
+        "variables": [
+          {
+            "name": "orders",
+            "value": "{{1.data}}"
+          }
+        ]
+      },
+      "metadata": {
+        "designer": {
+          "x": 300,
+          "y": 0
+        },
+        "notes": "Connect your notification destination here (Slack, Email, Webhook, etc.). Replace this module with the app of your choice and map the 'orders' variable to the message body."
+      }
+    }
+  ],
+  "metadata": {
+    "instant": false,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true
+    }
+  }
+}
