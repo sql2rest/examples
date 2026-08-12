@@ -30,7 +30,9 @@ alone has knowledge but no tools.
 3. **Claude Desktop** (Windows, macOS oder Linux). *Die claude.ai-Web-Version geht aktuell
    nicht — siehe Hinweis ganz oben.*
 4. **Node.js 20 oder neuer** auf dem Rechner mit Claude Desktop. Prüfen mit `node -v`.
-   Fehlt Node oder ist es älter als 20, von https://nodejs.org (LTS) installieren.
+   Fehlt Node oder ist es älter als 20, von https://nodejs.org/en/download (LTS) installieren;
+   unter Windows den Button **Windows Installer (.msi)**. Den Haken bei „Tools für native
+   Module" (installiert Chocolatey) kannst du weglassen, `mcp-remote` braucht ihn nicht.
 
 ### Einrichtung in 3 Schritten
 
@@ -110,12 +112,18 @@ Claude sollte die SQL2REST-Tools aufrufen und mit echten Zahlen antworten.
 - **„Could not load app settings / Unexpected token … is not valid JSON":** Die Datei wurde
   mit einem BOM gespeichert → als **UTF-8 ohne BOM** neu speichern (z.B. in VS Code unten rechts
   auf die Kodierung klicken → „Save with Encoding" → „UTF-8").
-- **„SQL2REST: Server disconnected" / Status `failed`:** Fast immer **Node zu alt**. `mcp-remote`
-  braucht **Node 20+**; unter Node 18 stürzt es mit `undici: File is not defined` ab. `node -v`
-  prüfen und auf 20+ aktualisieren. **Wichtig bei nvm/Linux:** Claude Desktop erbt die
-  nvm-Umgebung der Shell NICHT — stelle sicher, dass die Standard-Node-Version 20+ ist und
-  starte Desktop danach neu, oder trage den vollen Pfad zur npx aus deiner Node-20-Installation
-  in `command` ein und setze `env.PATH` entsprechend.
+- **„SQL2REST: Server disconnected" / Status `failed`:** Fast immer **Node zu alt oder gar nicht
+  installiert**. `mcp-remote` braucht **Node 20+**; unter Node 18 stürzt es mit
+  `undici: File is not defined` ab. `node -v` prüfen und auf 20+ aktualisieren.
+- **Node gerade erst installiert?** Claude Desktop übernimmt die Umgebung (den `PATH`) beim
+  Start. Ist die App zum Zeitpunkt der Node-Installation schon gelaufen, findet sie das neue
+  Node nicht — sie meldet weiter `failed`, obwohl `node -v` im Terminal längst funktioniert.
+  Danach die App **komplett beenden** und neu starten.
+- **Kein nvm für Claude Desktop.** Claude Desktop startet als normales Programm und erbt die
+  nvm-Umgebung deiner Shell **nicht** (Windows wie Linux). Installiere Node am einfachsten über
+  den normalen Installer von [nodejs.org](https://nodejs.org/en/download) (LTS). Wenn du bei nvm
+  bleiben willst: Standard-Node auf 20+ setzen und Desktop neu starten, oder den vollen Pfad zur
+  `npx` aus deiner Node-20-Installation in `command` eintragen und `env.PATH` entsprechend setzen.
 - **Änderung wirkt nicht:** Nur das Fenster zu schließen reicht nicht — die App läuft im Tray
   weiter. Immer **komplett beenden** und neu starten.
 
@@ -137,7 +145,9 @@ Konfig-Datei, **nicht im Template** — das Template kann also unbedenklich gete
 3. **Claude Desktop** (Windows, macOS or Linux). *The claude.ai web version does not work
    today — see the note at the top.*
 4. **Node.js 20 or newer** on the machine running Claude Desktop. Check with `node -v`;
-   install the LTS from https://nodejs.org if missing or older than 20.
+   install the LTS from https://nodejs.org/en/download if missing or older than 20; on Windows
+   use the **Windows Installer (.msi)** button. You can leave the "Tools for Native Modules"
+   checkbox (which installs Chocolatey) unticked — `mcp-remote` does not need it.
 
 ### Setup in 3 steps
 
@@ -208,11 +218,18 @@ Instructions**. Done.
 - **"Could not load app settings / Unexpected token … is not valid JSON":** the file was saved
   with a BOM → re-save as **UTF-8 without BOM** (i.e. VS Code: click the encoding at bottom-right →
   "Save with Encoding" → "UTF-8").
-- **"SQL2REST: Server disconnected" / status `failed`:** almost always **Node too old**.
-  `mcp-remote` needs **Node 20+**; on Node 18 it crashes with `undici: File is not defined`.
-  Check `node -v`. **With nvm/Linux:** Claude Desktop does NOT inherit your shell's nvm Node —
-  make sure the default Node is 20+ and relaunch Desktop, or pin the absolute nvm npx path in
-  `command` and set `env.PATH` to that bin directory first.
+- **"SQL2REST: Server disconnected" / status `failed`:** almost always **Node too old, or not
+  installed at all**. `mcp-remote` needs **Node 20+**; on Node 18 it crashes with
+  `undici: File is not defined`. Check `node -v`.
+- **Just installed Node?** Claude Desktop picks up its environment (the `PATH`) at launch. If the
+  app was already running when you installed Node, it will not see the new Node and keeps
+  reporting `failed`, even though `node -v` works fine in a terminal. **Fully quit** the app and
+  start it again.
+- **No nvm for Claude Desktop.** Claude Desktop launches as a normal application and does **not**
+  inherit your shell's nvm environment (Windows and Linux alike). The simplest route is the plain
+  installer from [nodejs.org](https://nodejs.org/en/download) (LTS). If you want to stay on nvm:
+  set the default Node to 20+ and relaunch Desktop, or pin the absolute `npx` path from your
+  Node 20 install in `command` and set `env.PATH` to that bin directory.
 - **Change didn't apply:** closing the window isn't enough (app stays in the tray). **Fully
   quit** and restart.
 
