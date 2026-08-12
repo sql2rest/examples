@@ -26,7 +26,7 @@ alone has knowledge but no tools.
 
 1. Eine laufende **SQL2REST**-Installation (v1.6+) mit aktiviertem HTTP-MCP.
 2. Die **MCP-URL** und den **API-Key** deiner Installation. Beides findest du im
-   **API-Dashboard → MCP** (z. B. `http://dein-server:8000/mcp`).
+   **API-Dashboard → MCP** (Tunnel-URL: `https://dein-tunnel.jtl2api.com/mcp`, für LAN-only: `http://dein-server:8000/mcp`).
 3. **Claude Desktop** (Windows, macOS oder Linux). *Die claude.ai-Web-Version geht aktuell
    nicht — siehe Hinweis ganz oben.*
 4. **Node.js 20 oder neuer** auf dem Rechner mit Claude Desktop. Prüfen mit `node -v`.
@@ -63,10 +63,9 @@ dem **API-Dashboard → MCP**:
       "command": "npx",
       "args": [
         "-y", "mcp-remote",
-        "http://DEIN-SERVER:8000/mcp",
+        "https://dein-tunnel.jtl2api.com/mcp",
         "--transport", "http-only",
-        "--header", "X-API-Key:${SQL2REST_KEY}",
-        "--no-auth"
+        "--header", "X-API-Key:${SQL2REST_KEY}"
       ],
       "env": { "SQL2REST_KEY": "DEIN-API-KEY" }
     }
@@ -76,8 +75,11 @@ dem **API-Dashboard → MCP**:
 
 > - Der Key steht bewusst unten bei `env` und wird oben als `${SQL2REST_KEY}` referenziert —
 >   so vermeiden wir einen Windows-Quoting-Fehler. **Kein Leerzeichen** nach `X-API-Key:`.
-> - Läuft dein SQL2REST ohne HTTPS (z. B. im lokalen Netz), bleibt `http://` korrekt. Mit
->   HTTPS-Reverse-Proxy stattdessen `https://...`.
+> - Die URL oben ist die SQL2REST-Tunnel-URL (HTTPS). Für LAN-only: `http://dein-server:8000/mcp`.
+> - **Wichtig:** Der `mcpServers`-Block muss **innerhalb** des vorhandenen `{ }`-Root-Objekts
+>   deiner `claude_desktop_config.json` stehen — als Geschwister-Key neben anderen
+>   Top-Level-Schlüsseln (z. B. `preferences`), **mit Komma davor**. Kein zweites `{ }`
+>   dahinter anfügen — das ergibt kein gültiges JSON.
 > - Hattest du vorher schon andere Server in der Datei, füge nur die
 >   `"SQL2REST": { ... }`-Zeile innerhalb von `mcpServers` hinzu (Komma nicht vergessen).
 > - **Als UTF-8 OHNE BOM speichern.** Sonst meldet Claude Desktop beim Start
@@ -130,8 +132,8 @@ Konfig-Datei, **nicht im Template** — das Template kann also unbedenklich gete
 ### What you need
 
 1. A running **SQL2REST** install (v1.6+) with HTTP-MCP enabled.
-2. Your install's **MCP URL** and **API key** (shown in **API Dashboard → MCP**,
-   e.g. `http://your-server:8000/mcp`).
+2. Your install's **MCP URL** and **API key** (shown in **API Dashboard → MCP**;
+   Tunnel URL: `https://dein-tunnel.jtl2api.com/mcp`; for LAN-only: `http://your-server:8000/mcp`).
 3. **Claude Desktop** (Windows, macOS or Linux). *The claude.ai web version does not work
    today — see the note at the top.*
 4. **Node.js 20 or newer** on the machine running Claude Desktop. Check with `node -v`;
@@ -164,10 +166,9 @@ Add the `mcpServers` block and replace **URL** and **API key** with the values f
       "command": "npx",
       "args": [
         "-y", "mcp-remote",
-        "http://YOUR-SERVER:8000/mcp",
+        "https://dein-tunnel.jtl2api.com/mcp",
         "--transport", "http-only",
-        "--header", "X-API-Key:${SQL2REST_KEY}",
-        "--no-auth"
+        "--header", "X-API-Key:${SQL2REST_KEY}"
       ],
       "env": { "SQL2REST_KEY": "YOUR-API-KEY" }
     }
@@ -177,7 +178,11 @@ Add the `mcpServers` block and replace **URL** and **API key** with the values f
 
 > - The key stays in `env` (referenced as `${SQL2REST_KEY}`) to avoid Windows quoting issues.
 >   **No space** after `X-API-Key:`.
-> - No HTTPS (local network)? `http://` is correct. With an HTTPS reverse proxy use `https://`.
+> - The URL above is the SQL2REST Tunnel URL (HTTPS). For LAN-only: `http://your-server:8000/mcp`.
+> - **Important:** paste the `mcpServers` block **inside** the existing root `{ }` of
+>   `claude_desktop_config.json` — as a sibling of other top-level keys (e.g. `preferences`),
+>   **with a comma before it**. Do NOT paste it as a second standalone `{ }` object — that
+>   produces invalid JSON ("Unexpected non-whitespace character after JSON").
 > - Already had other servers? Just add the `"SQL2REST": { ... }` entry inside `mcpServers`.
 > - **Save as UTF-8 WITHOUT a BOM**, or Claude Desktop shows *"Could not load app settings /
 >   Unexpected token … is not valid JSON"* on launch.
