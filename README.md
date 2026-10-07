@@ -8,7 +8,7 @@ These are safe-to-share building blocks for connecting SQL2REST to the tools you
 
 | Example | What it does |
 |---------|--------------|
-| [`claude-desktop/`](./claude-desktop/) | Connect **Claude Desktop** to your live JTL-Wawi data via SQL2REST's HTTP-MCP endpoint, plus a ready-to-paste project template (DE + EN) that teaches Claude your data model |
+| [`ai-project-template/`](./ai-project-template/) | System instructions (DE + EN) that teach **Claude** or **ChatGPT** your JTL-Wawi data model: which tool answers which question, and the traps that produce wrong numbers. Paste into a project. Includes both connection routes, sign-in connector and configuration file |
 | [`n8n-templates/`](./n8n-templates/) | Importable **n8n** workflows: a generic "call any endpoint" starter plus flagship recipes (new-orders notification, daily product export, low-stock alert). Header Auth against your single API key |
 | [`make-templates/`](./make-templates/) | Importable **Make** blueprints: a generic HTTP starter plus a new-orders notification, using the generic HTTP module with an `X-API-Key` header |
 | [`zapier-templates/`](./zapier-templates/) | Step-by-step guide to call any SQL2REST endpoint from **Zapier** via "Webhooks by Zapier" (no custom Zapier app needed) |
