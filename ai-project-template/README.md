@@ -205,7 +205,7 @@ Claude sollte die SQL2REST-Tools aufrufen und mit echten Zahlen antworten.
   Aktuelle Builds (geprüft 1.24012.9, August 2026) **entfernen ihn stillschweigend** und
   verbinden nie — nimm den `mcp-remote`-Block oben.
 
-### Mehrere Mitarbeiter (Agentur)
+### Mehrere Mitarbeiter (Team-Tarif)
 
 **Mit Konnektor:** Du lädst jede Person im Reiter **„Schlüssel"** ein und weist ihr die
 Datenbereiche zu, die sie sehen darf. Jede Person meldet sich dann mit ihrem **eigenen**
@@ -377,7 +377,7 @@ Instructions**. Done.
   (verified 1.24012.9, Aug 2026) **silently strip it** and never connect — use the
   `mcp-remote` block above.
 
-### Multiple team members (agency)
+### Multiple team members (Team plan)
 
 **With the connector:** invite each person in the **"Keys"** tab and assign the data areas
 they may see. Each person then signs in with their **own** SQL2REST login; no key is handed
