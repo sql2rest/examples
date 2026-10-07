@@ -1,7 +1,14 @@
-# SQL2REST + Claude — Project Template
+# SQL2REST — AI Project Template (Claude and ChatGPT)
 
-Turn Claude into a JTL-Wawi analyst. This template gives Claude the domain knowledge
-to use the SQL2REST API well; the MCP connection gives it the actual tool access.
+Turn your AI assistant into a JTL-Wawi analyst. This template gives it the domain
+knowledge to use the SQL2REST API well; the MCP connection gives it the actual tool
+access.
+
+**The system instruction works in both Claude and ChatGPT** — paste it into a project
+in either one. The setup walkthrough below is written for Claude, because that is the
+route with two options (sign-in connector or configuration file). For ChatGPT you only
+need the public MCP address and the instruction; that path is documented at
+https://sql2rest.com/jtl-wawi/chatgpt/
 
 - **MCP connection** → the *hands* (live read-only access to your JTL data)
 - **This template** → the *brain* (knows your data model, conventions, and typical workflows)
