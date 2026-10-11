@@ -6,8 +6,9 @@ access.
 
 **The system instruction works in both Claude and ChatGPT** — paste it into a project
 in either one. The setup walkthrough below is written for Claude, because that is the
-route with two options (sign-in connector or configuration file). For ChatGPT you only
-need the public MCP address and the instruction; that path is documented at
+route with three options (sign-in connector, configuration file on the server itself,
+configuration file on another computer). For ChatGPT you only need the public MCP address
+(Team/Agency plan) and the instruction; that path is documented at
 https://sql2rest.com/jtl-wawi/chatgpt/
 
 - **MCP connection** → the *hands* (live read-only access to your JTL data)
@@ -16,19 +17,24 @@ https://sql2rest.com/jtl-wawi/chatgpt/
 You need both. The connection alone leaves Claude guessing at endpoints; the template
 alone has knowledge but no tools.
 
-> **Two routes, and your plan decides which one is yours.**
+> **Three routes, and your plan decides which ones are yours.** The question is where the
+> AI client runs: on the server with SQL2REST itself, or on another computer.
 >
-> | | Connector (OAuth sign-in) | Configuration file |
-> |---|---|---|
-> | Plan | **Team / Agency** | **Personal**, or any plan |
-> | Works in | claude.ai in the browser, Claude Desktop, the phone and tablet apps | Claude Desktop, Claude Code, Cursor, Windsurf |
-> | Needs | SQL2REST **v1.4.0+** and the built-in HTTPS tunnel | an API key and **Node.js 20+** on the client machine |
-> | Setup | sign in once, approve | paste a JSON block, restart |
+> | | A: Connector (OAuth sign-in) | B: Configuration file on the server itself | C: Configuration file on another computer |
+> |---|---|---|---|
+> | Plan | **Team / Agency** | **every plan** (Personal and trial included) | **Team / Agency** |
+> | Works in | claude.ai in the browser, Claude Desktop, the phone and tablet apps | Claude Desktop, Claude Code, Cursor, Windsurf, running on the SQL2REST server | Claude Desktop, Claude Code, Cursor, Windsurf, on another computer in your network or anywhere on the internet |
+> | Needs | SQL2REST **v1.4.0+** and the built-in HTTPS tunnel | nothing extra: the client starts `sql2rest.exe --mcp` itself | the switch "Allow MCP from other computers", an API key and **Node.js 20+** on the client machine |
+> | Setup | sign in once, approve | paste a JSON block, restart | paste a JSON block, restart |
 >
-> Since **v1.4.0** the connector is the normal route for Claude, and nobody hand-edits
-> `claude_desktop_config.json` for it any more. The configuration-file route stays
-> fully supported — it is the route on the Personal plan, and the route for clients
-> that cannot sign in through a connector yet (Cursor, Windsurf).
+> **Below Team (Personal, trial) only route B exists.** MCP from other computers, whether
+> from your own network or from the internet, is part of the Team plan. On the server
+> itself, MCP works on every plan.
+>
+> Since **v1.4.0** the connector is the normal route for Claude on Team and Agency, and
+> nobody hand-edits `claude_desktop_config.json` for it any more. The configuration-file
+> routes stay fully supported: B is the route on the Personal plan, C the route for
+> clients that cannot sign in through a connector yet (Cursor, Windsurf).
 >
 > Step by step with screenshots: **https://sql2rest.com/jtl-wawi/claude/**
 
@@ -48,7 +54,7 @@ Desktop und in den Claude-Apps am Handy und Tablet.
 1. **SQL2REST v1.4.0 oder neuer**, auf dem Server, wo auch deine JTL-Wawi liegt.
 2. **Ein HTTPS-Tunnel.** Seit v1.3.29 eingebaut, du musst nichts zusätzlich installieren.
 3. **Team- oder Agency-Tarif.** Der Konnektor braucht eine öffentliche Adresse, und die
-   gibt es ab dem Team-Tarif. Im Personal-Tarif nimmst du **Weg B**.
+   gibt es ab dem Team-Tarif. Im Personal-Tarif und in der Testphase nimmst du **Weg B**.
 
 **In fünf Schritten verbunden**
 
@@ -77,22 +83,63 @@ den Zugang zu nehmen.
 
 Weiter unten bei **„Projekt anlegen und Systemanweisung einfügen"**.
 
-### Weg B — Konfigurationsdatei (Personal-Tarif, Cursor, Windsurf)
+### Weg B — Konfigurationsdatei am Server selbst (jeder Tarif)
 
-Dieser Weg funktioniert von einem Windows-Rechner in deinem Netzwerk. Was er nicht kann,
-ist eine öffentliche Adresse — und damit gibt es dort keinen Konnektor.
+Claude Desktop, Claude Code, Cursor oder Windsurf laufen direkt auf dem Server, auf dem
+auch SQL2REST läuft. Das Programm startet SQL2REST dann selbst, ohne Adresse und ohne
+Netzwerk. Das geht in jedem Tarif und ist im Personal-Tarif und in der Testphase der
+einzige Weg: MCP von anderen Rechnern, ob aus dem eigenen Netzwerk oder aus dem Internet,
+gehört zum Team-Tarif.
 
 > **Ein Punkt, der viele überrascht:** Die Konfigurationsdatei startet den MCP-Server in
 > einer lokalen Sitzung auf dem Rechner, auf dem Claude läuft. Auf gehosteten
 > Windows-Servern, und genau dort liegt die JTL-Wawi meistens, lässt sich diese Sitzung
-> oft gar nicht starten. Dann hilft nur Weg A.
+> oft gar nicht starten. Dann bleibt ab dem Team-Tarif Weg A oder Weg C.
 
 **Was du dafür brauchst**
 
-1. Eine laufende **SQL2REST**-Installation mit aktiviertem Remote-MCP.
+1. Eine laufende **SQL2REST**-Installation (Windows-Dienst) auf diesem Server.
+2. Den Pfad zu `sql2rest.exe`, meist `C:\sql2rest\sql2rest.exe`. Einen Schalter im
+   API-Dashboard, einen API-Key oder Node.js brauchst du nicht: SQL2REST liest den Schlüssel
+   selbst aus seiner Konfiguration.
+
+**Schritt 1 — Konfig-Datei öffnen** wie unten bei Weg C beschrieben (in Claude Desktop:
+**Einstellungen → Entwickler → „Konfiguration bearbeiten"**).
+
+**Schritt 2 — diesen Block einfügen**
+
+```json
+{
+  "mcpServers": {
+    "sql2rest": {
+      "command": "C:\\sql2rest\\sql2rest.exe",
+      "args": ["--mcp"]
+    }
+  }
+}
+```
+
+> - Liegt SQL2REST woanders, den Pfad anpassen. Im JSON stehen die Backslashes doppelt.
+> - Wie bei Weg C gilt: der `mcpServers`-Block gehört **innerhalb** des vorhandenen
+>   `{ }`-Root-Objekts, mit Komma davor, und die Datei wird als **UTF-8 ohne BOM** gespeichert.
+> - Cursor und Windsurf nehmen denselben Block in ihrer eigenen MCP-Konfiguration.
+
+Speichern und **Claude Desktop komplett neu starten** (System-Tray → Rechtsklick → Beenden).
+Danach erscheint „sql2rest" unter **Einstellungen → Entwickler** als verbunden.
+
+### Weg C — Konfigurationsdatei von einem anderen Rechner (Team-/Agency-Tarif)
+
+Claude Desktop, Claude Code, Cursor oder Windsurf laufen auf einem anderen Rechner als
+SQL2REST, im eigenen Netzwerk oder irgendwo im Internet. Dieser Weg ist **MCP von anderen
+Rechnern** und gehört zum Team- oder Agency-Tarif. Er ist auch der Weg für Programme, die
+sich noch nicht über einen Konnektor anmelden können (Cursor, Windsurf).
+
+**Was du dafür brauchst**
+
+1. **Team- oder Agency-Tarif** und eine laufende **SQL2REST**-Installation, in der der Schalter **„MCP für andere Rechner freigeben“** eingeschaltet ist.
 2. Die **MCP-URL** und den **API-Key** deiner Installation. Beides findest du im
    **API-Dashboard → Einstellungen → Remote-Zugriff** (Tunnel-URL:
-   `https://dein-tunnel.jtl2api.com/mcp`, für LAN-only: `http://dein-server:8000/mcp`).
+   `https://dein-tunnel.jtl2api.com/mcp`, im eigenen Netzwerk: `http://dein-server:8000/mcp`).
 3. **Node.js 20 oder neuer** auf dem Rechner mit Claude Desktop. Prüfen mit `node -v`.
    Fehlt Node oder ist es älter als 20, von https://nodejs.org/en/download (LTS) installieren;
    unter Windows den Button **Windows Installer (.msi)**. Den Haken bei „Tools für native
@@ -133,7 +180,8 @@ dem **API-Dashboard**:
 
 > - Der Key steht bewusst unten bei `env` und wird oben als `${SQL2REST_KEY}` referenziert —
 >   so vermeiden wir einen Windows-Quoting-Fehler. **Kein Leerzeichen** nach `X-API-Key:`.
-> - Die URL oben ist die SQL2REST-Tunnel-URL (HTTPS). Für LAN-only: `http://dein-server:8000/mcp`.
+> - Die URL oben ist die SQL2REST-Tunnel-URL (HTTPS). Im eigenen Netzwerk: `http://dein-server:8000/mcp`.
+>   Beide Adressen gibt es nur im Team- und Agency-Tarif.
 > - **Wichtig:** Der `mcpServers`-Block muss **innerhalb** des vorhandenen `{ }`-Root-Objekts
 >   deiner `claude_desktop_config.json` stehen — als Geschwister-Key neben anderen
 >   Top-Level-Schlüsseln (z. B. `preferences`), **mit Komma davor**. Kein zweites `{ }`
@@ -150,7 +198,7 @@ Entwickler** sollte „SQL2REST" nach ein paar Sekunden als verbunden erscheinen
 
 ### Projekt anlegen und Systemanweisung einfügen
 
-Gilt für **beide Wege** und ist der eigentliche Zweck dieses Ordners.
+Gilt für **alle drei Wege** und ist der eigentliche Zweck dieses Ordners.
 
 Neues Projekt erstellen, z. B. „JTL-Wawi (SQL2REST)". Dann den **kompletten** Inhalt von
 [`system-instructions.de.md`](./system-instructions.de.md) (oder die englische Variante)
@@ -181,7 +229,14 @@ Claude sollte die SQL2REST-Tools aufrufen und mit echten Zahlen antworten.
 - **In Claude Desktop fehlt der Konnektor:** Er gehört zum Claude-Konto, nicht zum Gerät.
   Claude Desktop zeigt ihn nach einem Neustart.
 
-**Konfigurationsdatei (Weg B)**
+**Konfigurationsdatei am Server selbst (Weg B)**
+
+- **„sql2rest" erscheint nicht oder steht auf `failed`:** Stimmt der Pfad zu `sql2rest.exe`,
+  mit doppelten Backslashes? Läuft der SQL2REST-Dienst? Auf gehosteten Windows-Servern startet
+  Claude Desktop solche Einträge oft gar nicht, siehe den Hinweis bei Weg B.
+- **JSON-Fehler beim Start:** dieselben Punkte wie bei Weg C (BOM, zweites `{ }`).
+
+**Konfigurationsdatei von einem anderen Rechner (Weg C)**
 
 - **„Could not load app settings / Unexpected token … is not valid JSON":** Die Datei wurde
   mit einem BOM gespeichert → als **UTF-8 ohne BOM** neu speichern (z.B. in VS Code unten rechts
@@ -212,7 +267,7 @@ Datenbereiche zu, die sie sehen darf. Jede Person meldet sich dann mit ihrem **e
 SQL2REST-Login an; es wird kein Schlüssel weitergegeben, und jede Verbindung lässt sich
 einzeln trennen.
 
-**Mit Konfigurationsdatei:** Jeder Mitarbeiter trägt den Block einmal in **seine eigene**
+**Mit Konfigurationsdatei (Weg C):** Jeder Mitarbeiter trägt den Block einmal in **seine eigene**
 `claude_desktop_config.json` ein.
 
 In beiden Fällen legt jede Person ein Projekt mit demselben Template an. Der API-Key liegt
@@ -233,7 +288,7 @@ claude.ai, in Claude Desktop, and in the Claude apps on phone and tablet.
 1. **SQL2REST v1.4.0 or newer**, running on the server where your JTL-Wawi lives.
 2. **An HTTPS tunnel.** Built in since v1.3.29, there is nothing extra to install.
 3. **Team or Agency plan.** The connector needs a public address, and that starts with the
-   Team plan. On the Personal plan, use **route B**.
+   Team plan. On the Personal plan and during the trial, use **route B**.
 
 **Connected in five steps**
 
@@ -259,21 +314,61 @@ disconnected without taking away the access of that person.
 
 Continue below at **"Create a project and paste the instructions"**.
 
-### Route B — configuration file (Personal plan, Cursor, Windsurf)
+### Route B — configuration file on the server itself (every plan)
 
-This route works from a Windows machine on your network. What it cannot do is a public
-address, so there is no connector there.
+Claude Desktop, Claude Code, Cursor or Windsurf run directly on the server where SQL2REST
+runs. The program then starts SQL2REST itself, with no address and no network. This works
+on every plan, and on the Personal plan and during the trial it is the only route: MCP from
+other computers, whether from your own network or from the internet, is part of the Team
+plan.
 
 > **A point that surprises many people:** the configuration file starts the MCP server in a
 > local session on the machine Claude runs on. On hosted Windows servers, which is where
-> the JTL-Wawi usually lives, that session often cannot start at all. Route A is then the
-> only way.
+> the JTL-Wawi usually lives, that session often cannot start at all. From the Team plan
+> on, route A or route C is then the way.
 
 **What you need**
 
-1. A running **SQL2REST** install with Remote-MCP enabled.
+1. A running **SQL2REST** install (Windows service) on this server.
+2. The path to `sql2rest.exe`, usually `C:\sql2rest\sql2rest.exe`. You need no switch in the
+   API Dashboard, no API key and no Node.js: SQL2REST reads the key from its own configuration.
+
+**Step 1 — open the config file** as described under route C below (in Claude Desktop:
+**Settings → Developer → "Edit Config"**).
+
+**Step 2 — paste this block**
+
+```json
+{
+  "mcpServers": {
+    "sql2rest": {
+      "command": "C:\\sql2rest\\sql2rest.exe",
+      "args": ["--mcp"]
+    }
+  }
+}
+```
+
+> - If SQL2REST lives elsewhere, adjust the path. Backslashes are doubled inside JSON.
+> - As with route C: the `mcpServers` block goes **inside** the existing root `{ }`, with a
+>   comma before it, and the file is saved as **UTF-8 without a BOM**.
+> - Cursor and Windsurf take the same block in their own MCP configuration.
+
+Save and **fully quit Claude Desktop** (system tray → right-click → Quit), then reopen.
+"sql2rest" should then appear as connected under **Settings → Developer**.
+
+### Route C — configuration file on another computer (Team/Agency plan)
+
+Claude Desktop, Claude Code, Cursor or Windsurf run on a different computer than SQL2REST,
+on your own network or anywhere on the internet. This route is **MCP from other computers**
+and is part of the Team or Agency plan. It is also the route for clients that cannot sign in
+through a connector yet (Cursor, Windsurf).
+
+**What you need**
+
+1. **Team or Agency plan** and a running **SQL2REST** install with the switch **“Allow MCP from other computers”** turned on.
 2. Your install's **MCP URL** and **API key** (**API Dashboard → Settings → Remote Access**;
-   Tunnel URL: `https://your-tunnel.jtl2api.com/mcp`; for LAN-only: `http://your-server:8000/mcp`).
+   Tunnel URL: `https://your-tunnel.jtl2api.com/mcp`; on your own network: `http://your-server:8000/mcp`).
 3. **Node.js 20 or newer** on the machine running Claude Desktop. Check with `node -v`;
    install the LTS from https://nodejs.org/en/download if missing or older than 20; on Windows
    use the **Windows Installer (.msi)** button. You can leave the "Tools for Native Modules"
@@ -312,7 +407,8 @@ Add the `mcpServers` block and replace **URL** and **API key** with the values f
 
 > - The key stays in `env` (referenced as `${SQL2REST_KEY}`) to avoid Windows quoting issues.
 >   **No space** after `X-API-Key:`.
-> - The URL above is the SQL2REST Tunnel URL (HTTPS). For LAN-only: `http://your-server:8000/mcp`.
+> - The URL above is the SQL2REST Tunnel URL (HTTPS). On your own network: `http://your-server:8000/mcp`.
+>   Both addresses exist only on the Team and Agency plans.
 > - **Important:** paste the `mcpServers` block **inside** the existing root `{ }` of
 >   `claude_desktop_config.json` — as a sibling of other top-level keys (e.g. `preferences`),
 >   **with a comma before it**. Do NOT paste it as a second standalone `{ }` object — that
@@ -327,7 +423,7 @@ as connected under **Settings → Developer** after a few seconds.
 
 ### Create a project and paste the instructions
 
-Applies to **both routes**, and it is what this folder is actually for.
+Applies to **all three routes**, and it is what this folder is actually for.
 
 Create a project, e.g. "JTL-Wawi (SQL2REST)", and copy the **entire**
 [`system-instructions.en.md`](./system-instructions.en.md) into the project's **Custom
@@ -353,7 +449,14 @@ Instructions**. Done.
 - **The connector is missing in Claude Desktop:** it belongs to the Claude account, not the
   device. Claude Desktop shows it after a restart.
 
-**Configuration file (route B)**
+**Configuration file on the server itself (route B)**
+
+- **"sql2rest" does not appear or shows `failed`:** is the path to `sql2rest.exe` right, with
+  doubled backslashes? Is the SQL2REST service running? On hosted Windows servers Claude
+  Desktop often cannot start such entries at all, see the note under route B.
+- **JSON error on launch:** the same points as for route C (BOM, a second `{ }`).
+
+**Configuration file on another computer (route C)**
 
 - **"Could not load app settings / Unexpected token … is not valid JSON":** the file was saved
   with a BOM → re-save as **UTF-8 without BOM** (i.e. VS Code: click the encoding at bottom-right →
@@ -383,7 +486,7 @@ Instructions**. Done.
 they may see. Each person then signs in with their **own** SQL2REST login; no key is handed
 around, and any single connection can be disconnected on its own.
 
-**With the configuration file:** each person adds the block once to **their own**
+**With the configuration file (route C):** each person adds the block once to **their own**
 `claude_desktop_config.json`.
 
 Either way, each person creates a project with the same template. The API key never lives in
@@ -400,7 +503,8 @@ the template — so the template is safe to share.
 | `README.md` | This setup guide |
 
 The instruction mentions a `tool-reference` file next to it. That file is part of
-your SQL2REST installation (folder `claude-project-template`, next to the exe) and
+your SQL2REST installation (folder `ai-project-template` next to the exe, called
+`claude-desktop-template` on older builds) and
 is not published here. You do not need it to use the template: your AI app already
 sees every tool and every parameter in its own tool list.
 
