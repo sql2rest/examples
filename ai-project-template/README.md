@@ -29,7 +29,7 @@ alone has knowledge but no tools.
 >
 > **Below Team (Personal, trial) only route B exists.** MCP from other computers, whether
 > from your own network or from the internet, is part of the Team plan. On the server
-> itself, MCP works on every plan.
+> itself, MCP works through the configuration file.
 >
 > Since **v1.4.0** the connector is the normal route for Claude on Team and Agency, and
 > nobody hand-edits `claude_desktop_config.json` for it any more. The configuration-file
