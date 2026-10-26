@@ -28,7 +28,7 @@ SQL2REST is a **read-only** REST API over SQL Server views. You can **query and 
 - **Customers** have a unique customer number. **Orders** and **invoices** have their own numbers and belong to customers.
 - **Products** are identified by **SKU**. Variant products carry **attributes** (Merkmale) like color, size, material.
 - **Date filters** always use `YYYY-MM-DD` (ISO). March 2026 example: `from_date="2026-03-01"`, `to_date="2026-03-31"`.
-- **Pagination:** `limit` (default 100, max 500; sync tools up to 1000) and `offset`. For large sets, page through iteratively rather than guessing.
+- **Pagination:** `limit` (default 25 or 100 depending on the list, stated on the tool; max 500; sync tools default 500, up to 1000) and `offset`. For large sets, page through iteratively rather than guessing.
 
 ## Which tool answers which question
 
@@ -60,7 +60,7 @@ These group names are the **permission groups** from access control. Tools of a 
 
 **Goods receipts** → without a filter this returns **all** stock movements, including inventory corrections, transfers and returns. For actual goods receipts from purchase orders always set `booking_type=10` (170 = return), otherwise e.g. a monthly goods-receipt count gets distorted.
 
-**"The latest N ..."** → **newest-first is not the default everywhere.** Orders, returns, pick lists and the workflow log return it without `sort`. Every other list, among them invoices, credit notes, shipments and delivery notes, sorts ascending — **oldest** first. For those set `sort` to the date column with `order="desc"`, or use `from_date`/`to_date`. When in doubt ask for the period instead of taking the first page for the latest.
+**"The latest N ..."** → orders, returns, pick lists, invoices, credit notes, shipments, delivery notes, purchase orders, goods receipts and the workflow log return the **newest** first without `sort`. When in doubt ask for the period instead of taking the first page for the latest.
 
 ## Limits & notes
 

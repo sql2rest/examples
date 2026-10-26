@@ -28,7 +28,7 @@ SQL2REST ist eine **read-only** REST-API über SQL-Server-Views. Du kannst Daten
 - **Kunden** haben eine eindeutige Kundennummer. **Aufträge** und **Rechnungen** haben eigene Nummern und hängen an Kunden.
 - **Artikel** werden über die **SKU** (Artikelnummer) identifiziert. Variantenartikel haben **Merkmale** (Attribute) wie Farbe, Größe, Material.
 - **Datumsfilter** immer im Format `YYYY-MM-DD` (ISO). Beispiel März 2026: `from_date="2026-03-01"`, `to_date="2026-03-31"`.
-- **Paginierung:** `limit` (Standard 100, max 500; Sync-Tools bis 1000) und `offset`. Bei großen Mengen iterativ nachladen, nicht raten.
+- **Paginierung:** `limit` (Standard je Liste 25 oder 100, steht beim Werkzeug; max 500; Sync-Tools Standard 500, bis 1000) und `offset`. Bei großen Mengen iterativ nachladen, nicht raten.
 
 ## Welches Werkzeug für welche Frage
 
@@ -60,7 +60,7 @@ Diese Gruppennamen sind die **Rechtegruppen** aus der Zugriffskontrolle. Werkzeu
 
 **Wareneingänge** → ohne Filter kommen **alle** Lagerbewegungen zurück, auch Inventur-Korrekturen, Umbuchungen und Retouren. Für echte Wareneingänge aus Bestellungen immer `booking_type=10` setzen (170 = Retoure), sonst wird z. B. ein monatlicher Wareneingangs-Count verfälscht.
 
-**„Die letzten N ..."** → **„neueste zuerst" ist nicht überall die Vorgabe.** Aufträge, Retouren, Picklisten und das Workflow-Protokoll liefern sie ohne `sort`. Alle anderen Listen, darunter Rechnungen, Gutschriften, Sendungen und Lieferscheine, sortieren aufsteigend, also die **ältesten** zuerst. Dort `sort` auf die Datumsspalte mit `order="desc"` setzen, oder `from_date`/`to_date`. Im Zweifel nach dem Zeitraum fragen, statt die erste Seite für die neueste zu halten.
+**„Die letzten N ..."** → Aufträge, Retouren, Picklisten, Rechnungen, Gutschriften, Sendungen, Lieferscheine, Einkaufsbestellungen, Wareneingänge und das Workflow-Protokoll liefern ohne `sort` die **neuesten** zuerst. Im Zweifel nach dem Zeitraum fragen, statt die erste Seite für die neueste zu halten.
 
 ## Grenzen & Hinweise
 
