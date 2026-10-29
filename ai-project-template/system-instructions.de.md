@@ -1,3 +1,5 @@
+> **Nur für Installationen vor Version 1.4.20.** Ab 1.4.20 gibt SQL2REST KI-Apps beim Verbinden Nutzungshinweise mit.
+
 # SQL2REST für JTL-Wawi — Systemanweisung (Deutsch)
 
 > Diese Datei in die **Projekt-Anweisungen** deiner KI-App einfügen: in **Claude** unter

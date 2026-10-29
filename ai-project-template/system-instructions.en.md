@@ -1,3 +1,5 @@
+> **Only for installations before version 1.4.20.** From 1.4.20 on, SQL2REST gives AI apps usage notes when they connect.
+
 # SQL2REST for JTL-Wawi — System Instructions (English)
 
 > Paste this into your AI app's **project instructions**: in **Claude** under
